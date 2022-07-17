@@ -1,4 +1,4 @@
-package io.github.jelilio.jwtauthotp.controller;
+package io.github.jelilio.jwtauthotp.controller.admin;
 
 import io.github.jelilio.jwtauthotp.model.Message;
 import org.springframework.http.ResponseEntity;

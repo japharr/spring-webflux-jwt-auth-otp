@@ -3,26 +3,30 @@ package io.github.jelilio.jwtauthotp.controller;
 import io.github.jelilio.jwtauthotp.config.security.JWTUtil;
 import io.github.jelilio.jwtauthotp.config.security.PBKDF2Encoder;
 import io.github.jelilio.jwtauthotp.dto.BasicRegisterDto;
-import io.github.jelilio.jwtauthotp.entity.User;
 import io.github.jelilio.jwtauthotp.model.AuthRequest;
 import io.github.jelilio.jwtauthotp.model.AuthResponse;
+import io.github.jelilio.jwtauthotp.model.OtpResponseDto;
 import io.github.jelilio.jwtauthotp.service.UserService;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+import java.net.URI;
 
-@AllArgsConstructor
 @RestController
-public class AuthenticationREST {
-    private JWTUtil jwtUtil;
-    private PBKDF2Encoder passwordEncoder;
-    private UserService userService;
+@RequiredArgsConstructor
+@RequestMapping("/api/account")
+public class AccountController {
+    private final JWTUtil jwtUtil;
+    private final PBKDF2Encoder passwordEncoder;
+    private final UserService userService;
 
     @PostMapping("/login")
     public Mono<ResponseEntity<AuthResponse>> login(@RequestBody AuthRequest ar) {
@@ -33,7 +37,10 @@ public class AuthenticationREST {
     }
 
     @PostMapping("/register")
-    public Mono<ResponseEntity<User>> register(@Valid @RequestBody BasicRegisterDto ar) {
-        return userService.register(ar).map(ResponseEntity::ok);
+    public Mono<ResponseEntity<OtpResponseDto>> register(@Valid @RequestBody BasicRegisterDto ar) {
+        return userService.register(ar)
+            .map(inserted -> ResponseEntity
+                .created(URI.create("/api/account/register/" + inserted.getFirst().getId()))
+                .body(new OtpResponseDto(inserted.getSecond())));
     }
 }

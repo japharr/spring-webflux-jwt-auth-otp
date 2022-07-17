@@ -12,8 +12,10 @@ import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
 
 import java.io.Serial;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,12 +54,21 @@ public class User extends AbstractAuditingEntity implements UserDetails {
     @Column("password")
     private String password;
 
-    @Column("enabled")
     @Setter
-    private boolean enabled;
+    @Column("enabled")
+    private boolean enabled = true;
 
     @Column("roles")
     private String roles;
+
+    @JsonIgnore
+    @Getter @Setter
+    @Column("activated_date")
+    private Instant activatedDate;
+
+    @Getter @Setter
+    @Column("last_login_date")
+    private Instant lastLoginDate;
 
     @Override
     public String getUsername() {
@@ -112,4 +123,7 @@ public class User extends AbstractAuditingEntity implements UserDetails {
         return password;
     }
 
+    public boolean isActivated() {
+        return activatedDate != null;
+    }
 }
