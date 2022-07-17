@@ -19,7 +19,7 @@ public class PBKDF2Encoder implements PasswordEncoder {
     @Value("${jwt-auth-otp.password.encoder.iteration}")
     private Integer iteration;
 
-    @Value("$jwt-auth-otp.password.encoder.keylength}")
+    @Value("${jwt-auth-otp.password.encoder.keylength}")
     private Integer keylength;
 
     /**

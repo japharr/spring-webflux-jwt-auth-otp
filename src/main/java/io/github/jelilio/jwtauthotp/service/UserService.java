@@ -1,36 +1,44 @@
 package io.github.jelilio.jwtauthotp.service;
 
+import io.github.jelilio.jwtauthotp.config.security.PBKDF2Encoder;
 import io.github.jelilio.jwtauthotp.entity.User;
-import io.github.jelilio.jwtauthotp.entity.enumeration.Role;
+import io.github.jelilio.jwtauthotp.exception.AlreadyExistException;
+import io.github.jelilio.jwtauthotp.model.AuthRequest;
+import io.github.jelilio.jwtauthotp.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.PostConstruct;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
-/**
- * This is just an example, you can load the user from the database from the repository.
- * 
- */
 @Service
 public class UserService {
+    private final UserRepository userRepository;
+    private final PBKDF2Encoder passwordEncoder;
 
-    private Map<String, User> data;
-
-    @PostConstruct
-    public void init() {
-        data = new HashMap<>();
-
-        //username:passwowrd -> user:user
-        data.put("user", new User("user", "cBrlgyL2GI2GINuLUUwgojITuIufFycpLG4490dhGtY=", true, Arrays.asList(Role.ROLE_USER)));
-
-        //username:passwowrd -> admin:admin
-        data.put("admin", new User("admin", "dQNjUIMorJb8Ubj2+wVGYp6eAeYkdekqAcnYp+aRq5w=", true, Arrays.asList(Role.ROLE_ADMIN)));
+    public UserService(UserRepository userRepository, PBKDF2Encoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public Mono<User> findByUsername(String username) {
-        return Mono.justOrEmpty(data.get(username));
+        return userRepository.findByUsernameIgnoreCase(username);
+    }
+
+    public Mono<Boolean> checkIfUsernameExist(String username) {
+        return userRepository.countByUsernameIgnoreCase(username)
+            .map(count -> count > 0);
+    }
+
+    @Transactional
+    public Mono<User> register(AuthRequest request) {
+        return checkIfUsernameExist(request.getUsername())
+            .flatMap(itExist -> {
+                if(itExist) return Mono.error(new AlreadyExistException("username already exist"));
+
+                User user = new User();
+                user.setUsername(request.getUsername());
+                user.setPassword(passwordEncoder.encode(request.getPassword()));
+                return userRepository.save(user);
+            });
+
     }
 }

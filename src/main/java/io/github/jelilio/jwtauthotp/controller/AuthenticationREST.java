@@ -2,6 +2,7 @@ package io.github.jelilio.jwtauthotp.controller;
 
 import io.github.jelilio.jwtauthotp.config.security.JWTUtil;
 import io.github.jelilio.jwtauthotp.config.security.PBKDF2Encoder;
+import io.github.jelilio.jwtauthotp.entity.User;
 import io.github.jelilio.jwtauthotp.model.AuthRequest;
 import io.github.jelilio.jwtauthotp.model.AuthResponse;
 import io.github.jelilio.jwtauthotp.service.UserService;
@@ -16,7 +17,6 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 @RestController
 public class AuthenticationREST {
-
     private JWTUtil jwtUtil;
     private PBKDF2Encoder passwordEncoder;
     private UserService userService;
@@ -29,4 +29,9 @@ public class AuthenticationREST {
             .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
     }
 
+    @PostMapping("/register")
+    public Mono<ResponseEntity<User>> register(@RequestBody AuthRequest ar) {
+        return userService.register(ar)
+            .map(ResponseEntity::ok);
+    }
 }

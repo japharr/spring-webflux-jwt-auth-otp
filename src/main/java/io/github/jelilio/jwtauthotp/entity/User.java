@@ -4,29 +4,45 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.jelilio.jwtauthotp.entity.enumeration.Role;
 import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serial;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Table("users")
 public class User implements UserDetails {
+    @Serial
     private static final long serialVersionUID = 1L;
 
+    @Id
+    @Column("id")
+    private Long id;
+
+    @Column("username")
     private String username;
 
+    @Column("password")
     private String password;
 
-    @Getter @Setter
-    private Boolean enabled;
+    @Column("enabled")
+    @Setter
+    private boolean enabled;
 
     @Getter @Setter
-    private List<Role> roles;
+    @Column("roles")
+    private String roles;
 
     @Override
     public String getUsername() {
@@ -59,7 +75,11 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.roles.stream().map(authority -> new SimpleGrantedAuthority(authority.name())).collect(Collectors.toList());
+        if(roles == null) return Collections.emptyList();
+
+        return Arrays.stream(roles.split(","))
+            .map(authority -> new SimpleGrantedAuthority(authority.toLowerCase()))
+            .collect(Collectors.toList());
     }
 
     @JsonIgnore
