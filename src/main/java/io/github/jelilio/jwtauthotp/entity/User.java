@@ -26,6 +26,7 @@ public class User extends AbstractAuditingEntity implements UserDetails {
     private static final long serialVersionUID = 1L;
 
     @Id
+    @Getter
     @Column("id")
     private Long id;
 
