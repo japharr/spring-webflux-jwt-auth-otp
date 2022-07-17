@@ -2,6 +2,7 @@ package io.github.jelilio.jwtauthotp.config.security;
 
 import io.github.jelilio.jwtauthotp.entity.User;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,12 +16,17 @@ import java.util.Map;
 
 @Component
 public class JWTUtil {
-    public static final String USER_ID = "user_id";
+    public static final String USER_ID = "uid";
+    public static final String ROLE = "role";
+
     @Value("${jwt-auth-otp.jjwt.secret}")
     private String secret;
 
     @Value("${jwt-auth-otp.jjwt.expiration}")
     private String expirationTime;
+
+    @Value("${jwt-auth-otp.jjwt.issuer}")
+    private String issuer;
 
     private Key key;
 
@@ -53,7 +59,8 @@ public class JWTUtil {
 
     public String generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", user.getRoles());
+        claims.put(ROLE, user.getRoles());
+        claims.put(USER_ID, user.getId());
         return doGenerateToken(claims, user);
     }
 
@@ -62,13 +69,14 @@ public class JWTUtil {
         final Date createdDate = new Date();
         final Date expirationDate = new Date(createdDate.getTime() + expirationTimeLong * 1000);
 
+
         return Jwts.builder()
             .setClaims(claims)
             .setSubject(user.getUsername())
-            .setClaims(Map.of(USER_ID, user.getId()))
             .setIssuedAt(createdDate)
             .setExpiration(expirationDate)
             .signWith(key)
+            .setIssuer(issuer)
             .compact();
     }
 

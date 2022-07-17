@@ -28,7 +28,7 @@ public class User extends AbstractAuditingEntity implements UserDetails {
     @Id
     @Getter
     @Column("id")
-    private Long id;
+    private UUID id;
 
     @Version
     @JsonIgnore
