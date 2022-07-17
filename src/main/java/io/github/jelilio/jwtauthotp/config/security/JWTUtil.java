@@ -15,7 +15,7 @@ import java.util.Map;
 
 @Component
 public class JWTUtil {
-
+    public static final String USER_ID = "user_id";
     @Value("${jwt-auth-otp.jjwt.secret}")
     private String secret;
 
@@ -37,6 +37,11 @@ public class JWTUtil {
         return getAllClaimsFromToken(token).getSubject();
     }
 
+    public String getUserIdFromToken(String token) {
+        return getAllClaimsFromToken(token)
+            .get(USER_ID, String.class);
+    }
+
     public Date getExpirationDateFromToken(String token) {
         return getAllClaimsFromToken(token).getExpiration();
     }
@@ -53,7 +58,7 @@ public class JWTUtil {
     }
 
     private String doGenerateToken(Map<String, Object> claims, String username) {
-        Long expirationTimeLong = Long.parseLong(expirationTime); //in second
+        long expirationTimeLong = Long.parseLong(expirationTime); //in second
         final Date createdDate = new Date();
         final Date expirationDate = new Date(createdDate.getTime() + expirationTimeLong * 1000);
 

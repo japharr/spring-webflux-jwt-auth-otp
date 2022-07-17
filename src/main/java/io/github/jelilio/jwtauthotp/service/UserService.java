@@ -1,13 +1,18 @@
 package io.github.jelilio.jwtauthotp.service;
 
 import io.github.jelilio.jwtauthotp.config.security.PBKDF2Encoder;
+import io.github.jelilio.jwtauthotp.dto.BasicRegisterDto;
 import io.github.jelilio.jwtauthotp.entity.User;
+import io.github.jelilio.jwtauthotp.entity.enumeration.Role;
 import io.github.jelilio.jwtauthotp.exception.AlreadyExistException;
 import io.github.jelilio.jwtauthotp.model.AuthRequest;
 import io.github.jelilio.jwtauthotp.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class UserService {
@@ -29,14 +34,17 @@ public class UserService {
     }
 
     @Transactional
-    public Mono<User> register(AuthRequest request) {
-        return checkIfUsernameExist(request.getUsername())
+    public Mono<User> register(BasicRegisterDto request) {
+        return checkIfUsernameExist(request.email())
             .flatMap(itExist -> {
                 if(itExist) return Mono.error(new AlreadyExistException("username already exist"));
 
                 User user = new User();
-                user.setUsername(request.getUsername());
-                user.setPassword(passwordEncoder.encode(request.getPassword()));
+                user.setName(request.name());
+                user.setUsername(request.email());
+                user.setEmail(request.email());
+                user.setPassword(passwordEncoder.encode(request.password()));
+                user.setRoles(Set.of(Role.ROLE_USER));
                 return userRepository.save(user);
             });
 

@@ -4,11 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class AuthRequest {
-    private String username;
-    private String password;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
-}
+
+public record AuthRequest(
+    @NotNull @NotBlank
+    String username,
+    @NotNull @NotBlank
+    String password
+) { }
