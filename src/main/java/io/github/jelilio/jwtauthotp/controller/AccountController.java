@@ -3,6 +3,7 @@ package io.github.jelilio.jwtauthotp.controller;
 import io.github.jelilio.jwtauthotp.config.security.JWTUtil;
 import io.github.jelilio.jwtauthotp.config.security.PBKDF2Encoder;
 import io.github.jelilio.jwtauthotp.dto.BasicRegisterDto;
+import io.github.jelilio.jwtauthotp.dto.ValidateOtpDto;
 import io.github.jelilio.jwtauthotp.model.AuthRequest;
 import io.github.jelilio.jwtauthotp.model.AuthResponse;
 import io.github.jelilio.jwtauthotp.model.OtpResponseDto;
@@ -42,5 +43,10 @@ public class AccountController {
             .map(inserted -> ResponseEntity
                 .created(URI.create("/api/account/register/" + inserted.getFirst().getId()))
                 .body(new OtpResponseDto(inserted.getSecond())));
+    }
+
+    @PostMapping("/verify-email-otp")
+    public Mono<ResponseEntity<AuthResponse>> verifyEmail(@Valid @RequestBody ValidateOtpDto dto) {
+        return userService.verifyEmail(dto.email(), dto.otpKey()).map(ResponseEntity::ok);
     }
 }

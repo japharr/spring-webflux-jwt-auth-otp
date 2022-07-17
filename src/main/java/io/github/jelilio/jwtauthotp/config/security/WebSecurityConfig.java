@@ -36,6 +36,7 @@ public class WebSecurityConfig {
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
                 .pathMatchers("/api/account/login").permitAll()
                 .pathMatchers("/api/account/register").permitAll()
+                .pathMatchers("/api/account/verify-email-otp").permitAll()
                 .anyExchange().authenticated()
                 .and().build();
     }

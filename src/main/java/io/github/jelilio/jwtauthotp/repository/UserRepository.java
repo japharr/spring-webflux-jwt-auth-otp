@@ -11,10 +11,16 @@ import java.util.UUID;
 @Repository
 public interface UserRepository extends ReactiveCrudRepository<User, UUID> {
   Mono<User> findByUsernameIgnoreCase(String username);
+
   Mono<Long> countByUsernameIgnoreCase(String username);
-  @Query("select count(*) from users where email = :email and activated_date != null")
+
+  @Query("select count(*) from users where email = :email and activated_date is not null")
   Mono<Long> countByEmailAvailable(String email);
 
-  @Query("select * from users where email = :email and activated_date = null limit 1")
+  @Query("select * from users where email = :email and activated_date is null limit 1")
   Mono<User> findByEmailAndNotActivated(String email);
+
+  @Query("select * from users where email = :usernameOrEmail or username = :usernameOrEmail")
+  Mono<User> findByUsernameOrEmail(String usernameOrEmail);
+
 }
