@@ -34,7 +34,6 @@ public class WebSecurityConfig {
                 .securityContextRepository(securityContextRepository)
                 .authorizeExchange()
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
-                .pathMatchers("/api/account/login").permitAll()
                 .pathMatchers("/api/account/authenticate").permitAll()
                 .pathMatchers("/api/account/authenticate-otp").permitAll()
                 .pathMatchers("/api/account/register").permitAll()

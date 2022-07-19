@@ -23,17 +23,7 @@ import java.net.URI;
 @RequiredArgsConstructor
 @RequestMapping("/api/account")
 public class AccountController {
-    private final JWTUtil jwtUtil;
-    private final PBKDF2Encoder passwordEncoder;
     private final UserService userService;
-
-    @PostMapping("/login")
-    public Mono<ResponseEntity<AuthResponse>> login(@RequestBody AuthRequest ar) {
-        return userService.findByUsername(ar.username())
-            .filter(userDetails -> passwordEncoder.encode(ar.password()).equals(userDetails.getPassword()))
-            .map(userDetails -> ResponseEntity.ok(new AuthResponse(jwtUtil.generateToken(userDetails))))
-            .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
-    }
 
     @PostMapping("/authenticate")
     public Mono<ResponseEntity<OtpResponseDto>> authenticate(@Valid @RequestBody AuthRequest dto) {
