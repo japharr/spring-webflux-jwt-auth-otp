@@ -14,6 +14,10 @@ public interface UserService {
 
   Mono<Boolean> checkIfEmailAvailable(String email);
 
+  Mono<Pair<User, Long>> authenticate(String usernameOrEmail, String password);
+
+  Mono<AuthResponse> authenticateOtp(String usernameOrEmail, String otpKey);
+
   @Transactional
   Mono<Pair<User, Long>> register(BasicRegisterDto request);
 

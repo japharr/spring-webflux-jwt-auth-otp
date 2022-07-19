@@ -61,6 +61,41 @@ public class UserServiceImpl implements UserService {
         });
   }
 
+  @Override
+  public Mono<Pair<User, Long>> authenticate(String usernameOrEmail, String password) {
+    log.debug("usernameOrEmail: {}, password: {}", usernameOrEmail, password);
+
+    var invalidAuthentication = new AuthenticationException("Invalid username or password", AUTH_LOGIN_INVALID);
+
+    Mono<User> userUni = userRepository.findByUsernameOrEmail(usernameOrEmail)
+        .switchIfEmpty(Mono.error(() -> invalidAuthentication));
+
+    return userUni.flatMap(user -> {
+      if(!user.isEnabled()) {
+        return Mono.error(() -> new AuthenticationException("Your account has been disabled, contact your administrator", AUTH_LOGIN_DISABLED));
+      }
+
+      if(user.getEmail().equalsIgnoreCase(usernameOrEmail) && !user.isActivated()) {
+        return Mono.error(() -> new AuthenticationException("Please, verify your email address", AUTH_VERIFY_EMAIL));
+      }
+
+      if(user.getPassword().equals(passwordEncoder.encode(password))) {
+        return createOtp(usernameOrEmail, user);
+      }
+
+      return Mono.error(() -> invalidAuthentication);
+    });
+  }
+
+  @Override
+  @Transactional
+  public Mono<AuthResponse> authenticateOtp(String usernameOrEmail, String otpKey) {
+    return validateOtp(usernameOrEmail, otpKey, false).flatMap(user -> {
+      user.setLastLoginDate(Instant.now());
+      return userRepository.save(user);
+    }).flatMap(this::createToken);
+  }
+
   @Transactional
   public Mono<User> register2(BasicRegisterDto request) {
     return checkIfUsernameExist(request.email())
@@ -106,7 +141,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public Mono<AuthResponse> verifyEmail(String email, String otpKey) {
-    return validateOtp(email, otpKey).flatMap(user -> {
+    return validateOtp(email, otpKey, true).flatMap(user -> {
       log.info("verifyEmail: user validated");
       user.setActivatedDate(Instant.now());
       user.setLastLoginDate(Instant.now());
@@ -133,7 +168,7 @@ public class UserServiceImpl implements UserService {
     });
   }
 
-  private Mono<User> validateOtp(String usernameOrEmail, String otpKey) {
+  private Mono<User> validateOtp(String usernameOrEmail, String otpKey, boolean register) {
     Mono<User> userUni = userRepository.findByUsernameOrEmail(usernameOrEmail)
         .switchIfEmpty(Mono.error(() -> new AuthenticationException("No user with this email/username found", AUTH_LOGIN_INVALID)));
 
@@ -142,7 +177,7 @@ public class UserServiceImpl implements UserService {
         return Mono.error(() -> new AuthenticationException("Your account has been disabled, contact your administrator", AUTH_LOGIN_DISABLED));
       }
 
-      if(user.isActivated()) {
+      if(user.isActivated() && register) {
         return Mono.error(() -> new AuthenticationException("Already activated", AUTH_LOGIN_ACTIVATED));
       }
 

@@ -35,6 +35,18 @@ public class AccountController {
             .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
     }
 
+    @PostMapping("/authenticate")
+    public Mono<ResponseEntity<OtpResponseDto>> authenticate(@Valid @RequestBody AuthRequest dto) {
+        return userService.authenticate(dto.username(), dto.password())
+            .map(response -> ResponseEntity.ok(new OtpResponseDto(response.getSecond())));
+    }
+
+    @PostMapping("/authenticate-otp")
+    public Mono<ResponseEntity<AuthResponse>> authenticateOtp(@Valid @RequestBody ValidateOtpDto dto) {
+        return userService.authenticateOtp(dto.email(), dto.otpKey())
+            .map(ResponseEntity::ok);
+    }
+
     @PostMapping("/register")
     public Mono<ResponseEntity<OtpResponseDto>> register(@Valid @RequestBody BasicRegisterDto ar) {
         return userService.register(ar)
