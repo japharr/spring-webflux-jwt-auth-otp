@@ -12,6 +12,8 @@ public interface UserService {
 
   Mono<User> findByUsername(String username);
 
+  Mono<Boolean> checkIfEmailAvailable(String email);
+
   @Transactional
   Mono<Pair<User, Long>> register(BasicRegisterDto request);
 

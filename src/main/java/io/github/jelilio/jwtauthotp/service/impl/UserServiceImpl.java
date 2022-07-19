@@ -16,16 +16,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Set;
 
 import static io.github.jelilio.jwtauthotp.exception.AuthenticationException.*;
@@ -55,6 +52,7 @@ public class UserServiceImpl implements UserService {
         .map(count -> count > 0);
   }
 
+  @Override
   public Mono<Boolean> checkIfEmailAvailable(String email) {
     return userRepository.countByEmailAvailable(email)
         .map(count -> {
