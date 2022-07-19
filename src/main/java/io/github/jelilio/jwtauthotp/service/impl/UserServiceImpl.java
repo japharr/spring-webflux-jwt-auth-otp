@@ -117,6 +117,24 @@ public class UserServiceImpl implements UserService {
         .flatMap(__ -> createToken(user)));
   }
 
+  @Override
+  public Mono<Pair<User, Long>> requestOtp(String usernameOrEmail) {
+    Mono<User> loginUni = userRepository.findByUsernameOrEmail(usernameOrEmail)
+        .switchIfEmpty(Mono.error(() -> new AuthenticationException("Email or username not registered", AUTH_LOGIN_INVALID)));
+
+    return loginUni.flatMap(user -> {
+      if (!user.isEnabled()) {
+        return Mono.error(() -> new AuthenticationException("Your account has been disabled, contact your administrator", AUTH_LOGIN_DISABLED));
+      }
+
+      if(user.isActivated()) {
+        return Mono.error(() -> new AuthenticationException("Already activated", AUTH_LOGIN_ACTIVATED));
+      }
+
+      return createOtp(usernameOrEmail, user);
+    });
+  }
+
   private Mono<User> validateOtp(String usernameOrEmail, String otpKey) {
     Mono<User> userUni = userRepository.findByUsernameOrEmail(usernameOrEmail)
         .switchIfEmpty(Mono.error(() -> new AuthenticationException("No user with this email/username found", AUTH_LOGIN_INVALID)));

@@ -16,4 +16,6 @@ public interface UserService {
   Mono<Pair<User, Long>> register(BasicRegisterDto request);
 
   Mono<AuthResponse> verifyEmail(String email, String otpKey);
+
+  Mono<Pair<User, Long>> requestOtp(String email);
 }

@@ -49,4 +49,12 @@ public class AccountController {
     public Mono<ResponseEntity<AuthResponse>> verifyEmail(@Valid @RequestBody ValidateOtpDto dto) {
         return userService.verifyEmail(dto.email(), dto.otpKey()).map(ResponseEntity::ok);
     }
+
+    @PostMapping("/request-otp")
+    public Mono<ResponseEntity<OtpResponseDto>> requestOtp(@Valid @RequestBody String email) {
+        return userService.requestOtp(email)
+            .map(userLongTuple -> ResponseEntity
+                .ok(new OtpResponseDto(userLongTuple.getSecond()))
+            );
+    }
 }
