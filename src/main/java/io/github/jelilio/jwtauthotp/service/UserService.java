@@ -9,6 +9,7 @@ import reactor.core.publisher.Mono;
 
 
 public interface UserService {
+  Mono<User> findByUserId(String userId);
 
   Mono<User> findByUsername(String username);
 

@@ -30,7 +30,7 @@ public class AuthenticationManager implements ReactiveAuthenticationManager {
                 List<String> rolesMap = claims.get("role", List.class);
                 return new UsernamePasswordAuthenticationToken(
                     username,
-                    null,
+                    claims,
                     rolesMap.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList())
                 );
             });

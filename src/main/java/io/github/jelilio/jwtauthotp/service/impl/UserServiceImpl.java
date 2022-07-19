@@ -24,6 +24,7 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Set;
+import java.util.UUID;
 
 import static io.github.jelilio.jwtauthotp.exception.AuthenticationException.*;
 
@@ -41,6 +42,11 @@ public class UserServiceImpl implements UserService {
 
   @Value("${jwt-auth-otp.otp.duration}")
   private Long otpKeyDuration; // in seconds
+
+  @Override
+  public Mono<User> findByUserId(String userId) {
+    return userRepository.findById(UUID.fromString(userId));
+  }
 
   @Override
   public Mono<User> findByUsername(String username) {
