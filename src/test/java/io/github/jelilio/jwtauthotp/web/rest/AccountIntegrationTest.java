@@ -23,9 +23,6 @@ import static org.mockito.Mockito.when;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class AccountIntegrationTest {
   @Autowired
-  DatabaseClient databaseClient;
-
-  @Autowired
   WebTestClient webClient;
 
   @MockBean
@@ -40,14 +37,7 @@ public class AccountIntegrationTest {
   }
 
   @BeforeEach
-  public void setUp() {
-    databaseClient.sql(
-        """
-            DROP TABLE IF EXISTS users;
-            CREATE TABLE IF NOT EXISTS users (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), version INT, name VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL, username VARCHAR(255),
-            enabled BOOLEAN NOT NULL, roles VARCHAR(500), activated_date TIMESTAMP, last_login_date TIMESTAMP, created_by VARCHAR(100), last_modified_by VARCHAR(100), created_date TIMESTAMP, last_modified_date TIMESTAMP);"""
-    ).then().block();
-  }
+  public void setUp() {}
 
   @Test
   public void test() {
