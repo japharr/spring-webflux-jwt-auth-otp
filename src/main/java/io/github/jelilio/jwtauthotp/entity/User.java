@@ -95,6 +95,12 @@ public class User extends AbstractAuditingEntity implements UserDetails {
         return this.enabled;
     }
 
+    public User(String name, String email, String password) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if(roles == null) return Collections.emptyList();

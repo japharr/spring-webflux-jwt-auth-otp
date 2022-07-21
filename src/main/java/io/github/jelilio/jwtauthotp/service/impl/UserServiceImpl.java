@@ -36,7 +36,6 @@ public class UserServiceImpl implements UserService {
   private final PBKDF2Encoder passwordEncoder;
   private final RandomUtil randomUtil;
   private final MailerService mailerService;
-
   private final JWTUtil jwtUtil;
   private final ReactiveRedisTemplate<String, String> reactiveStringRedisTemplate;
 
